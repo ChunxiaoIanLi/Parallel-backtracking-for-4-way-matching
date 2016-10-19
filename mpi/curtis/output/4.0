@@ -1,0 +1,15 @@
+done
+It took 0.023 seconds to read files
+It took 0.1488 seconds to finish the search
+--- SharcNET Job Epilogue ---
+              job id: 9053529
+         exit status: 0
+            cpu time: 6s / 50.0h (0 %)
+        elapsed time: 4s / 1.0h (0 %)
+      virtual memory: 272.2K / 1.0G (0 %)
+
+Job completed successfully
+WARNING: Job only used 0 % of its requested walltime.
+WARNING: Job only used 0 % of its requested cpu time.
+WARNING: Job only used 3 % of allocated cpu time.
+WARNING: Job only used 0% of its requested memory.

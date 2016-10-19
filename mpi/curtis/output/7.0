@@ -1,0 +1,43 @@
+7
+idle: 49
+6
+idle: 48
+5
+idle: 47
+4
+idle: 46
+3
+idle: 45
+2
+idle: 44
+1
+idle: 43
+SOLUTION 1 3 2 1 
+SOLUTION 3 1 2 1 
+SOLUTION 3 2 1 1 
+SOLUTION 2 3 1 1 
+SOLUTION 1 2 3 1 
+SOLUTION 2 1 3 1 
+idle: 42
+idle: 43
+idle: 44
+idle: 45
+idle: 46
+idle: 47
+idle: 48
+idle: 49
+done
+It took 0.0222 seconds to read files
+It took 0.16 seconds to finish the search
+--- SharcNET Job Epilogue ---
+              job id: 9053533
+         exit status: 0
+            cpu time: 5s / 50.0h (0 %)
+        elapsed time: 5s / 1.0h (0 %)
+      virtual memory: 272.2K / 1.0G (0 %)
+
+Job completed successfully
+WARNING: Job only used 0 % of its requested walltime.
+WARNING: Job only used 0 % of its requested cpu time.
+WARNING: Job only used 2 % of allocated cpu time.
+WARNING: Job only used 0% of its requested memory.

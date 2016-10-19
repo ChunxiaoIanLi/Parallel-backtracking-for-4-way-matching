@@ -1,0 +1,341 @@
+/*
+ * matching.cpp
+ *
+ *  Created on: 2015 M11 23
+ *      Author: Ian
+ */
+
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <map>
+#include <vector>
+#include <algorithm>
+#include <time.h>
+#include "Struct.h"
+
+void readFile(std::vector<std::vector<std::vector<int> > >& files,
+        std::string fileName, int k) {
+    //use 2D array to hold the entries for each file
+    //    FILE A       FILE B
+    //[[[1,2,3,4,5], [[1,2,3,4,5], ... , ]
+    //  [2,3,5,5,6],  [2,3,5,5,6],
+    //  [7,8,4,4,3]], [7,8,4,4,3]]
+    std::string line;
+    std::ifstream fp(fileName);
+
+    //push an empty vector to the end of files
+    std::vector<std::vector<int> > newFile;
+
+    if (fp.is_open()) {
+        //read each row
+        while (getline(fp, line)) {
+            //add a new row to file
+            std::vector<int> newRow(k);
+            //parse each row put the values in the file buffer
+            std::stringstream buff(line);
+            //buffValue is each number in a row
+            int buffValue;
+            int col = 0;
+            while (buff >> buffValue) {
+                newRow[col] = buffValue;
+                ++col;
+            }
+            newFile.push_back(newRow);
+        }
+    } else {
+        std::cout << "Failed to read files" << std::endl;
+    }
+
+    files.push_back(newFile);
+}
+
+void _getMatching_aux(ColStruct::rowMaps& rowMaps,
+        std::vector<std::vector<int> >& rows, int depth, int& lambda,
+        std::vector<int>& temp) {
+    if (depth >= 0) {
+        //rows with value num in column files[depth][col]
+        //the values are added in reverse order to the files order, ie: D C B A etc
+        for (auto& num : rowMaps[depth]) {
+            //this will put the values in correct order
+            temp[depth] = num.first;
+            _getMatching_aux(rowMaps, rows, depth - 1, lambda, temp);
+        }
+
+    } else {
+        //at last file
+        int sum = 0;
+        for (std::vector<int>::iterator it = temp.begin(); it != temp.end();
+                ++it) {
+            sum += *it;
+        }
+        //one combination found
+        if (sum == lambda) {
+            bool duplicate = false;
+            size_t i = rows.size();
+            while (duplicate == false and i >0) {
+                for (auto& combination : rows) {
+                    if (combination == temp) {
+                        duplicate = true;
+                    }
+                    --i;
+                }
+            }
+            if (duplicate == false) {
+                rows.push_back(temp);
+            }
+        }
+    }
+}
+
+std::vector<std::vector<int> > getMatching(ColStruct::rowMaps& rowMaps,
+        int& lambda) {
+    //returns a 2D vector containing all the number combinations that sums to lambda
+    //temp is a vector to keep the current combination
+    std::vector<std::vector<int> > rows;
+    std::vector<int> temp(rowMaps.size());
+    int depth = rowMaps.size() - 1;
+    _getMatching_aux(rowMaps, rows, depth, lambda, temp);
+    return rows;
+}
+
+void printFiles(std::vector<std::vector<std::vector<int> > >& files) {
+    std::string fileString[] = { "A", "B", "C", "D", "E", "F", "G" };
+    //Loop over all files
+    int fileCounter = 0;
+    for (auto file : files) {
+        std::cout << "File: " << fileString[fileCounter] << std::endl;
+        // Loop over all the columns(maps)
+        for (auto row : file) {
+            for (auto num : row) {
+                std::cout << num << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
+}
+
+bool toValid(std::vector<ColStruct::rowMaps>& colsTree,
+        std::vector<std::vector<std::vector<int> > >& domain,
+        int& currentDepth) {
+    //backtrack to a valid parent
+    while (domain[currentDepth].size() == 0) {
+        --currentDepth;
+    }
+    //tree is exhausted
+    if (currentDepth < 0) {
+        return false;
+    }
+    //currentDepth is at a valid node
+    else {
+        return true;
+    }
+
+}
+
+void _generateComb_aux(std::vector<std::vector<int> >& sets,
+        std::vector<int>& temp, std::vector<std::vector<int> >& solutionSet,
+        int depth) {
+    if ((size_t) depth < sets.size()) {
+        for (auto& row : sets[depth]) {
+            temp[depth] = row;
+            _generateComb_aux(sets, temp, solutionSet, depth + 1);
+        }
+    } else {
+        solutionSet.push_back(temp);
+        //print out the current solution, for debugging purposes
+	std::cout << "SOLUTION ";
+	for (auto& rowNum : temp) {
+	  std::cout << rowNum+1 << " ";
+	}
+	std::cout << std::endl;
+    }
+}
+
+//generate all the combinations for a set of rows
+void generateComb(std::vector<std::vector<int> >& sets,
+        std::vector<std::vector<int> >& solutionSet) {
+    std::vector<int> temp(sets.size());
+    int depth = 0;
+    _generateComb_aux(sets, temp, solutionSet, depth);
+
+}
+
+std::vector<std::vector<int> > backtracking(
+        std::vector<std::vector<std::vector<int> > >& files, int lambda,
+        int k) {
+
+    bool terminate = false;
+    int depth = k;
+    //solution contains all the solutions, empty vector if no matching is found
+    std::vector<std::vector<int> > solutionSet;
+    //create one rowMaps instance for each depth,
+    //thus construct a tree
+    std::vector<ColStruct::rowMaps> colsTree(k);
+    //construct a domain list
+    //domain=[[[10,20,30],[20,10,30]], [[15,15,30],[30,20,10]].....] domain for each column
+    std::vector<std::vector<std::vector<int> > > domain(k);
+
+    ColStruct::rowMap empty_rowMap;
+    ColStruct::rowMaps empty_rowMaps;
+    ColStruct::it it;
+
+    int domainsize_temp=0;
+	clock_t t;
+    t = clock();
+
+	//initialize first column of colsTree
+    int fileNum = 0;
+    colsTree[0] = empty_rowMaps;
+    for (auto& file : files) {
+        colsTree[0].push_back(empty_rowMap);
+        int rowNum = 0;
+        for (auto& row : file) {
+            it = colsTree[0][fileNum].find(row[0]);
+            //if value is already mapped, append row number to the vector
+            if (it != colsTree[0][fileNum].end()) {
+                it->second.push_back(rowNum);
+            }
+            //if not found create a map
+            else {
+                colsTree[0][fileNum].insert(
+                        std::pair<int, std::vector<int> >(row[0],
+                                std::vector<int>(1, rowNum)));
+            }
+            ++rowNum;
+        }
+        //move to next file
+        ++fileNum;
+    }
+
+    domain[0] = getMatching(colsTree[0], lambda);
+
+	t = clock() - t;
+	std::cout << "It took me " << t << " clicks (" << ((float) t) / CLOCKS_PER_SEC << " seconds). to read the preprocess the first column"<<std::endl;
+    int domain_temp=0;
+    //done initializing
+    int currentDepth = 0;
+    while (!terminate) {
+
+        //current state is a leaf
+        if (currentDepth == depth - 1) {  
+	  //succeed, get the all the combinations of rows
+            if (domain[currentDepth].size() > 0) {
+
+                std::vector<std::vector<int> > matches = domain[currentDepth];
+
+                //matches=[[20,80],[40,60]...]
+                //match=[20, 80]
+                for (auto& match : matches) {
+                    //sets for generating all the possibilities
+                    //            File A      File B
+                    //sets=[[rowN, rowM],[rowL, rowQ]....]
+                    std::vector<std::vector<int> > sets;
+                    for (size_t i = 0; i < files.size(); i++) {
+                        //rows have value match[i] for i'th file
+                        sets.push_back(colsTree[currentDepth][i][match[i]]);
+                    }
+                    //generate all the possible combinations
+                    generateComb(sets, solutionSet);
+                }
+                --currentDepth;
+            }
+            //backtrack
+            //check if the tree is exhausted, terminate if it is
+            //or update the tree
+            bool result = toValid(colsTree, domain, currentDepth);
+            if (result == false) {
+                terminate = true;
+            }
+
+        }
+        //if current state is not a leaf
+        else {
+            //if domain is empty, backtrack
+            if (domain[currentDepth].size() == 0) {
+                //check if the tree is exhausted, terminate if it is
+                bool result = toValid(colsTree, domain, currentDepth);
+                if (result == false) {
+                    terminate = true;
+                }
+            }
+            //if current domain is not empty
+            else {
+                //move one level down the tree
+                ++currentDepth;
+                //get first combination from parent domain, and update rowMaps for currentDepth
+                //one file at a time
+                //leave all the rows that has the value, update notRemove
+                int file = 0;
+                colsTree[currentDepth] = empty_rowMaps;
+                while (file < int(files.size())) {
+                    //construct a rowMap for current file and add to currentDepth
+                    colsTree[currentDepth].push_back(empty_rowMap);
+                    //domain[currentDepth][file] is the value in file(file) that is in the combination
+                    int value = domain[currentDepth - 1][0][file];
+                    for (auto& row : colsTree[currentDepth - 1][file][value]) {
+                        it = colsTree[currentDepth][file].find(
+                                files[file][row][currentDepth]);
+                        //if value is already mapped, append row number to the vector
+                        if (it != colsTree[currentDepth][file].end()) {
+                            it->second.push_back(row);
+                        }
+                        //if not found create a map
+                        else {
+                            colsTree[currentDepth][file].insert(
+                                    std::pair<int, std::vector<int> >(
+                                            files[file][row][currentDepth],
+                                            std::vector<int>(1, row)));
+                        }
+                    }
+                    //move to next file
+                    ++file;
+                }
+
+                //pop the combination out of the parent's domain
+                domain[currentDepth - 1].erase(
+                        domain[currentDepth - 1].begin());
+
+                //update domain for current level
+                domain[currentDepth] = getMatching(colsTree[currentDepth],
+                        lambda);
+            }
+        }
+	if (domain[0].size()!=domainsize_temp){
+	domainsize_temp=domain[0].size();
+	std::cout<<domainsize_temp<<" "<<domain[1].size()<<std::endl;
+	}
+    }
+    return solutionSet;
+}
+
+int main(int argc, char *argv[]) {
+
+    clock_t t;
+    clock_t readfile_t;
+    t = clock();
+
+    int lambda = atoi(argv[1]);
+    int k = atoi(argv[2]);
+
+    //initialize the file struct that's going to hold all the files
+    std::vector<std::vector<std::vector<int> > > files;
+    for (int i = 3; i < argc; i++) {
+      readFile(files, argv[i], k);
+    }
+
+
+    std::vector<std::vector<int> > solutionSet;
+    solutionSet = backtracking(files, lambda, k);
+
+    if (solutionSet.size() == 0) {
+      std::cout << "no solution" << std::endl;
+    }
+    else{
+      std::cout<<"there are "<<solutionSet.size()<<" solutions"<<std::endl;
+    }
+
+    t = clock() - t;
+    std::cout << "It took me " << t << " clicks (" << ((float) t) / CLOCKS_PER_SEC << " seconds)."<<std::endl;
+    return 0;
+}

@@ -1,0 +1,165 @@
+43
+idle: 49
+42
+idle: 48
+41
+idle: 47
+40
+idle: 46
+39
+idle: 45
+38
+idle: 44
+37
+idle: 43
+36
+idle: 42
+35
+idle: 41
+34
+idle: 40
+33
+idle: 39
+32
+idle: 38
+31
+idle: 37
+30
+idle: 36
+29
+idle: 35
+28
+idle: 34
+27
+idle: 33
+26
+idle: 32
+25
+idle: 31
+24
+idle: 30
+23
+idle: 29
+22
+idle: 28
+21
+idle: 27
+20
+idle: 26
+19
+idle: 25
+18
+idle: 24
+17
+idle: 23
+16
+idle: 22
+15
+idle: 21
+14
+idle: 20
+13
+idle: 19
+12
+idle: 18
+11
+idle: 17
+10
+idle: 16
+9
+idle: 15
+8
+idle: 14
+7
+idle: 13
+6
+idle: 12
+5
+idle: 11
+4
+idle: 10
+3
+idle: 9
+2
+idle: 8
+1
+idle: 7
+SOLUTION 1 8 13 7 
+SOLUTION 16 3 7 4 
+SOLUTION 14 3 11 13 
+SOLUTION 3 16 7 4 
+SOLUTION 3 14 11 13 
+SOLUTION 8 1 13 7 
+SOLUTION 11 13 28 8 
+SOLUTION 3 4 28 11 
+SOLUTION 4 3 28 11 
+SOLUTION 13 11 28 8 
+SOLUTION 16 3 23 16 
+SOLUTION 3 16 23 16 
+SOLUTION 12 16 13 17 
+SOLUTION 13 11 11 19 
+SOLUTION 5 16 10 3 
+SOLUTION 8 1 10 10 
+SOLUTION 1 8 10 10 
+SOLUTION 16 5 10 3 
+SOLUTION 16 12 13 17 
+SOLUTION 11 13 11 19 
+idle: 6
+idle: 7
+idle: 8
+idle: 9
+idle: 10
+idle: 11
+idle: 12
+idle: 13
+idle: 14
+idle: 15
+idle: 16
+idle: 17
+idle: 18
+idle: 19
+idle: 20
+idle: 21
+idle: 22
+idle: 23
+idle: 24
+idle: 25
+idle: 26
+idle: 27
+idle: 28
+idle: 29
+idle: 30
+idle: 31
+idle: 32
+idle: 33
+idle: 34
+idle: 35
+idle: 36
+idle: 37
+idle: 38
+idle: 39
+idle: 40
+idle: 41
+idle: 42
+idle: 43
+idle: 44
+idle: 45
+idle: 46
+idle: 47
+idle: 48
+idle: 49
+done
+It took 0.0228 seconds to read files
+It took 0.154 seconds to finish the search
+--- SharcNET Job Epilogue ---
+              job id: 9053471
+         exit status: 0
+            cpu time: 1s / 50.0h (0 %)
+        elapsed time: 4s / 1.0h (0 %)
+      virtual memory: 272.2K / 1.0G (0 %)
+
+Job completed successfully
+WARNING: Job only used 0 % of its requested walltime.
+WARNING: Job only used 0 % of its requested cpu time.
+WARNING: Job only used 0 % of allocated cpu time.
+WARNING: Job only used 0% of its requested memory.

@@ -1,0 +1,84 @@
+1
+idle: 49
+idle: 48
+idle: 48
+idle: 49
+done
+SOLUTION 1 1 2 2 
+SOLUTION 1 1 2 4 
+SOLUTION 1 1 4 2 
+SOLUTION 1 1 4 4 
+SOLUTION 1 2 2 2 
+SOLUTION 1 2 2 4 
+SOLUTION 1 2 4 2 
+SOLUTION 1 2 4 4 
+SOLUTION 1 3 2 2 
+SOLUTION 1 3 2 4 
+SOLUTION 1 3 4 2 
+SOLUTION 1 3 4 4 
+SOLUTION 1 4 2 2 
+SOLUTION 1 4 2 4 
+SOLUTION 1 4 4 2 
+SOLUTION 1 4 4 4 
+SOLUTION 2 1 2 2 
+SOLUTION 2 1 2 4 
+SOLUTION 2 1 4 2 
+SOLUTION 2 1 4 4 
+SOLUTION 2 2 2 2 
+SOLUTION 2 2 2 4 
+SOLUTION 2 2 4 2 
+SOLUTION 2 2 4 4 
+SOLUTION 2 3 2 2 
+SOLUTION 2 3 2 4 
+SOLUTION 2 3 4 2 
+SOLUTION 2 3 4 4 
+SOLUTION 2 4 2 2 
+SOLUTION 2 4 2 4 
+SOLUTION 2 4 4 2 
+SOLUTION 2 4 4 4 
+SOLUTION 3 1 2 2 
+SOLUTION 3 1 2 4 
+SOLUTION 3 1 4 2 
+SOLUTION 3 1 4 4 
+SOLUTION 3 2 2 2 
+SOLUTION 3 2 2 4 
+SOLUTION 3 2 4 2 
+SOLUTION 3 2 4 4 
+SOLUTION 3 3 2 2 
+SOLUTION 3 3 2 4 
+SOLUTION 3 3 4 2 
+SOLUTION 3 3 4 4 
+SOLUTION 3 4 2 2 
+SOLUTION 3 4 2 4 
+SOLUTION 3 4 4 2 
+SOLUTION 3 4 4 4 
+SOLUTION 4 1 2 2 
+SOLUTION 4 1 2 4 
+SOLUTION 4 1 4 2 
+SOLUTION 4 1 4 4 
+SOLUTION 4 2 2 2 
+SOLUTION 4 2 2 4 
+SOLUTION 4 2 4 2 
+SOLUTION 4 2 4 4 
+SOLUTION 4 3 2 2 
+SOLUTION 4 3 2 4 
+SOLUTION 4 3 4 2 
+SOLUTION 4 3 4 4 
+SOLUTION 4 4 2 2 
+SOLUTION 4 4 2 4 
+SOLUTION 4 4 4 2 
+SOLUTION 4 4 4 4 
+It took 0.0222 seconds to read files
+It took 0.1572 seconds to finish the search
+--- SharcNET Job Epilogue ---
+              job id: 9053535
+         exit status: 0
+            cpu time: 7s / 50.0h (0 %)
+        elapsed time: 17s / 1.0h (0 %)
+      virtual memory: 6.1M / 1.0G (0 %)
+
+Job completed successfully
+WARNING: Job only used 0 % of its requested walltime.
+WARNING: Job only used 0 % of its requested cpu time.
+WARNING: Job only used 0 % of allocated cpu time.
+WARNING: Job only used 0% of its requested memory.

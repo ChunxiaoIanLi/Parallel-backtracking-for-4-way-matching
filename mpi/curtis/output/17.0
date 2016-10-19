@@ -1,0 +1,295 @@
+104
+idle: 49
+103
+idle: 48
+102
+idle: 47
+101
+idle: 46
+100
+idle: 45
+99
+idle: 44
+98
+idle: 43
+97
+idle: 42
+96
+idle: 41
+95
+idle: 40
+94
+idle: 39
+93
+idle: 38
+92
+idle: 37
+91
+idle: 36
+90
+idle: 35
+89
+idle: 34
+88
+idle: 33
+87
+idle: 32
+86
+idle: 31
+85
+idle: 30
+84
+idle: 29
+83
+idle: 28
+82
+idle: 27
+81
+idle: 26
+80
+idle: 25
+79
+idle: 24
+78
+idle: 23
+77
+idle: 22
+76
+idle: 21
+75
+idle: 20
+74
+idle: 19
+73
+idle: 18
+72
+idle: 17
+71
+idle: 16
+70
+idle: 15
+69
+idle: 14
+68
+idle: 13
+67
+idle: 12
+66
+idle: 11
+65
+idle: 10
+64
+idle: 9
+63
+idle: 8
+62
+idle: 7
+61
+idle: 6
+60
+idle: 5
+59
+idle: 4
+58
+idle: 3
+57
+idle: 2
+56
+idle: 1
+55
+idle: 17
+54
+idle: 16
+53
+idle: 15
+52
+idle: 14
+51
+idle: 13
+50
+idle: 12
+49
+idle: 11
+48
+idle: 10
+47
+idle: 9
+46
+idle: 8
+45
+idle: 7
+44
+idle: 6
+43
+idle: 5
+42
+idle: 4
+41
+idle: 3
+40
+idle: 2
+39
+idle: 1
+38
+idle: 5
+37
+idle: 4
+36
+idle: 3
+35
+idle: 2
+34
+idle: 1
+33
+idle: 6
+32
+idle: 5
+31
+idle: 4
+30
+idle: 3
+29
+idle: 2
+28
+idle: 1
+27
+idle: 5
+26
+idle: 4
+25
+idle: 3
+24
+idle: 2
+23
+idle: 1
+22
+idle: 2
+21
+idle: 1
+20
+idle: 2
+19
+idle: 1
+18
+idle: 6
+17
+idle: 5
+16
+idle: 4
+15
+idle: 3
+14
+idle: 2
+13
+idle: 1
+12
+idle: 3
+11
+idle: 2
+10
+idle: 1
+9
+idle: 3
+8
+idle: 2
+7
+idle: 1
+6
+idle: 1
+5
+idle: 1
+4
+idle: 2
+3
+idle: 1
+2
+idle: 4
+1
+idle: 3
+SOLUTION 28 38 9 16 
+SOLUTION 2 12 19 16 
+SOLUTION 2 19 12 16 
+SOLUTION 25 35 18 16 
+SOLUTION 28 8 4 15 
+SOLUTION 2 37 14 7 
+SOLUTION 20 40 24 7 
+SOLUTION 22 34 16 15 
+SOLUTION 2 14 37 7 
+SOLUTION 22 2 29 7 
+SOLUTION 22 29 2 7 
+SOLUTION 22 16 34 15 
+SOLUTION 44 27 30 3 
+SOLUTION 25 18 35 16 
+SOLUTION 28 9 38 16 
+SOLUTION 20 24 40 7 
+SOLUTION 28 4 8 15 
+SOLUTION 44 30 27 3 
+SOLUTION 20 7 26 3 
+SOLUTION 44 10 22 15 
+SOLUTION 44 22 10 15 
+SOLUTION 25 21 13 3 
+SOLUTION 25 13 21 3 
+SOLUTION 20 26 7 3 
+idle: 2
+idle: 3
+idle: 4
+idle: 5
+idle: 6
+idle: 7
+idle: 8
+idle: 9
+idle: 10
+idle: 11
+idle: 12
+idle: 13
+idle: 14
+idle: 15
+idle: 16
+idle: 17
+idle: 18
+idle: 19
+idle: 20
+idle: 21
+idle: 22
+idle: 23
+idle: 24
+idle: 25
+idle: 26
+idle: 27
+idle: 28
+idle: 29
+idle: 30
+idle: 31
+idle: 32
+idle: 33
+idle: 34
+idle: 35
+idle: 36
+idle: 37
+idle: 38
+idle: 39
+idle: 40
+idle: 41
+idle: 42
+idle: 43
+idle: 44
+idle: 45
+idle: 46
+idle: 47
+idle: 48
+idle: 49
+done
+It took 0.0246 seconds to read files
+It took 0.15 seconds to finish the search
+--- SharcNET Job Epilogue ---
+              job id: 9053475
+         exit status: 0
+            cpu time: 2s / 50.0h (0 %)
+        elapsed time: 5s / 1.0h (0 %)
+      virtual memory: 272.2K / 1.0G (0 %)
+
+Job completed successfully
+WARNING: Job only used 0 % of its requested walltime.
+WARNING: Job only used 0 % of its requested cpu time.
+WARNING: Job only used 0 % of allocated cpu time.
+WARNING: Job only used 0% of its requested memory.

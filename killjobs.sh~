@@ -1,0 +1,10 @@
+#!/bin/bash    
+
+i="8454277"
+
+while [ $i -le 8454447 ]
+do
+    sqkill $i
+i=$[$i+1]
+
+done

@@ -1,0 +1,3 @@
+mpirun -np 100 ./mpi.out 223 223/A 223/B 223/C 223/D
+
+where 223 is lambda and followed by input files
