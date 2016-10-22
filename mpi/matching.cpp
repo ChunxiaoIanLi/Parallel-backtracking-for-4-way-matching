@@ -5,7 +5,9 @@
  *  Created on: 2015 M11 23
  *      Author: Ian
  */
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -30,7 +32,6 @@ void readFile(std::vector<std::vector<std::vector<int> > >& files,
     std::string line;
     std::ifstream fp(fileName);
     int         my_rank;   /* My process rank           */
-
 
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     
@@ -133,35 +134,39 @@ bool toValid(std::vector<ColStruct::rowMaps>& colsTree,
 }
 
 void _generateComb_aux(std::vector<std::vector<int> >& sets,
-		       std::vector<int>& temp, int depth) {
+					   std::vector<int>& temp, int depth, std::string outfilep) {
     if ((size_t) depth < sets.size()) {
         for (auto& row : sets[depth]) {
             temp[depth] = row;
-            _generateComb_aux(sets, temp, depth + 1);
+            _generateComb_aux(sets, temp, depth + 1, outfilep);
         }
     } else {
         //print out the current solution, for debugging purposes
-      
-	  std::cout << "SOLUTION ";
+		std::ofstream ofs;
+		do{
+			ofs.open(outfilep, std::ofstream::out | std::ofstream::app);
+		}while(!ofs.is_open());
+
+		ofs << "SOLUTION ";
 	  for (auto& rowNum : temp) {
-	  std::cout << rowNum+1 << " ";
+		  ofs<< rowNum+1 << " ";
 	  }
-	  std::cout << std::endl;
-      
+	  ofs << std::endl;
+      ofs.close();
     }
 }
 
 //generate all the combinations for a set of rows
-void generateComb(std::vector<std::vector<int> >& sets) {
+void generateComb(std::vector<std::vector<int> >& sets, std::string outfilep) {
     std::vector<int> temp(sets.size());
     int depth = 0;
-    _generateComb_aux(sets, temp, depth);
+    _generateComb_aux(sets, temp, depth, outfilep);
     
 }
 
 void backtracking(
 		  std::vector<std::vector<std::vector<int> > >& files, int lambda,
-		  int k) {
+		  int k, std::string outfilep) {
     
     int         my_rank;   /* My process rank           */
     int         tag=0;
@@ -176,6 +181,9 @@ void backtracking(
     int         domain_receive_size;
     int         lines_receive_size;
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+	outfilep+="/p";
+	outfilep+=std::to_string(my_rank);
+	
     //match/domain received from process 0
     std::vector<int> domain_recv(files.size());
 
@@ -384,7 +392,7 @@ void backtracking(
                             sets.push_back(colsTree[currentDepth][i][match[i]]);
                         }
                         //generate all the possible combinations
-                        generateComb(sets);
+                        generateComb(sets, outfilep);
                     }
                     --currentDepth;
                 }
@@ -691,6 +699,38 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &p);
 
+
+	std::stringstream ss;
+	std::string item;
+	std::vector<std::string> items;
+	std::string outfilep ="";
+	std::string outfolder;
+	std::string file;
+
+    //for primary file path
+    ss.str(argv[2]);
+    while(std::getline(ss, item, '/')){
+        items.push_back(item);
+    }
+    for(int i=1; i<items.size()-1; ++i){
+        outfilep+="/";
+        outfilep+=items[i];
+    }
+    outfilep+="/output/";
+
+    //for exact file name n.case
+    file=items[items.size()-1];
+    ss.clear();
+    ss.str(file);
+    items.clear();
+    while(std::getline(ss, item, '.')){
+        items.push_back(item);
+    }
+	outfilep+=items[0];
+	outfilep+='.';
+	outfilep+=items[1];
+
+
     lambda = atoi(argv[1]);
    	
     //initialize the file struct that's going to hold all the files
@@ -722,11 +762,13 @@ int main(int argc, char *argv[]) {
 
     //process 0 deals with first column and dispatches jobs
     if (my_rank==0){
+		std::cout<<"mkdir: "<<outfilep.c_str()<<std::endl;
+		mkdir(outfilep.c_str(), 0770);
         dispatcher(files, lambda, k);
     }
     //other processes do backtracking
     else{
-	backtracking(files, lambda, k);
+		backtracking(files, lambda, k, outfilep);
     }
 
     t = clock() - t;
