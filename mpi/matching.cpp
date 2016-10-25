@@ -22,7 +22,7 @@
 #include <unistd.h>
 
 void readFile(std::vector<std::vector<std::vector<int> > >& files,
-	      std::string fileName) {
+			  std::string fileName) {
     
     //use 2D array to hold the entries for each file
     //    FILE A       FILE B
@@ -41,21 +41,21 @@ void readFile(std::vector<std::vector<std::vector<int> > >& files,
     if (fp.is_open()) {
         //read each row
         while (getline(fp, line)) {
-	    if(line!=""){            
-		//add a new row to file
-		std::vector<int> newRow;
-		//parse each row put the values in the file buffer
-		std::stringstream buff(line);
+			if(line!=""){            
+				//add a new row to file
+				std::vector<int> newRow;
+				//parse each row put the values in the file buffer
+				std::stringstream buff(line);
 				
-		//buffValue is each number in a row
-		int buffValue;
+				//buffValue is each number in a row
+				int buffValue;
 				
-		while (buff >> buffValue) {
-		    newRow.push_back(buffValue);
+				while (buff >> buffValue) {
+					newRow.push_back(buffValue);
+				}
+				newFile.push_back(newRow);
+			}
 		}
-		newFile.push_back(newRow);
-	    }
-	}
     } else {
         std::cout << "Failed to read files" << std::endl;
     }
@@ -64,8 +64,8 @@ void readFile(std::vector<std::vector<std::vector<int> > >& files,
 }
 
 void _getMatching_aux(ColStruct::rowMaps& rowMaps,
-		      std::vector<std::vector<int> >& rows, int depth, int& lambda,
-		      std::vector<int>& temp) {
+					  std::vector<std::vector<int> >& rows, int depth, int& lambda,
+					  std::vector<int>& temp) {
     if (depth >= 0) {
         //rows with value num in column files[depth][col]
         //the values are added in reverse order to the files order, ie: D C B A etc
@@ -89,7 +89,7 @@ void _getMatching_aux(ColStruct::rowMaps& rowMaps,
 }
 
 std::vector<std::vector<int> > getMatching(ColStruct::rowMaps& rowMaps,
-					   int& lambda) {
+										   int& lambda) {
     //returns a 2D vector containing all the number combinations that sums to lambda
     //temp is a vector to keep the current combination
     std::vector<std::vector<int> > rows;
@@ -116,8 +116,8 @@ void printFiles(std::vector<std::vector<std::vector<int> > >& files) {
 }
 
 bool toValid(std::vector<ColStruct::rowMaps>& colsTree,
-	     std::vector<std::vector<std::vector<int> > >& domain,
-	     int& currentDepth) {
+			 std::vector<std::vector<std::vector<int> > >& domain,
+			 int& currentDepth) {
     //backtrack to a valid parent
     while (domain[currentDepth].size() == 0) {
         --currentDepth;
@@ -141,19 +141,29 @@ void _generateComb_aux(std::vector<std::vector<int> >& sets,
             _generateComb_aux(sets, temp, depth + 1, outfilep);
         }
     } else {
-        //print out the current solution, for debugging purposes
-		std::ofstream ofs;
-		do{
-			ofs.open(outfilep, std::ofstream::out | std::ofstream::app);
-		}while(!ofs.is_open());
-
-		ofs << "SOLUTION ";
-	  for (auto& rowNum : temp) {
-		  ofs<< rowNum+1 << " ";
-	  }
-	  ofs << std::endl;
-      ofs.close();
-    }
+		if(outfilep=="echo"){
+			std::cout<<"SOLUTION ";
+		
+			for (auto& rowNum : temp) {
+				std::cout<< rowNum+1 << " ";
+			}
+			std::cout << std::endl;
+		}
+		else if(outfilep!="none"){
+			//print out the current solution, for debugging purposes
+			std::ofstream ofs;
+			do{
+				ofs.open(outfilep, std::ofstream::out | std::ofstream::app);
+			}while(!ofs.is_open());
+			
+			ofs << "SOLUTION ";
+			for (auto& rowNum : temp) {
+				ofs<< rowNum+1 << " ";
+			}
+			ofs << std::endl;
+			ofs.close();
+		}
+	}
 }
 
 //generate all the combinations for a set of rows
@@ -165,8 +175,8 @@ void generateComb(std::vector<std::vector<int> >& sets, std::string outfilep) {
 }
 
 void backtracking(
-		  std::vector<std::vector<std::vector<int> > >& files, int lambda,
-		  int k, std::string outfilep) {
+				  std::vector<std::vector<std::vector<int> > >& files, int lambda,
+				  int k, std::string outfilep) {
     
     int         my_rank;   /* My process rank           */
     int         tag=0;
@@ -181,8 +191,11 @@ void backtracking(
     int         domain_receive_size;
     int         lines_receive_size;
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-	outfilep+="/p";
-	outfilep+=std::to_string(my_rank);
+	
+	if(outfilep!="echo" && outfilep!="none"){
+		outfilep+="/p";
+		outfilep+=std::to_string(my_rank);
+	}
 	
     //match/domain received from process 0
     std::vector<int> domain_recv(files.size());
@@ -204,33 +217,33 @@ void backtracking(
     if(domain_receive_size==1){
         //receiving jobs from other process
         while(domain_receive_size==1){
-	    //get donor
-	    MPI_Recv(&donor_process, domain_receive_size, MPI_INT, 0, receiver_tag, MPI_COMM_WORLD, &status);
+			//get donor
+			MPI_Recv(&donor_process, domain_receive_size, MPI_INT, 0, receiver_tag, MPI_COMM_WORLD, &status);
 	    
-	    //listen to donor
-	    MPI_Probe(donor_process, tag, MPI_COMM_WORLD, &status);
-	    MPI_Get_count(&status, MPI_INT, &domain_receive_size);
-	    //consume the message anyways
-	    domain_recv.resize(domain_receive_size);
-	    MPI_Recv(&domain_recv[0], domain_receive_size , MPI_INT, donor_process, tag, MPI_COMM_WORLD, &status);
+			//listen to donor
+			MPI_Probe(donor_process, tag, MPI_COMM_WORLD, &status);
+			MPI_Get_count(&status, MPI_INT, &domain_receive_size);
+			//consume the message anyways
+			domain_recv.resize(domain_receive_size);
+			MPI_Recv(&domain_recv[0], domain_receive_size , MPI_INT, donor_process, tag, MPI_COMM_WORLD, &status);
 	    
-	    //if didn't get any job, listen to dispatcher again
-	    if(domain_recv[0]==-1){
-		//signal completion
-		std::vector<int> exhaust_msg(1,-1);
-		MPI_Send(&exhaust_msg[0], 1, MPI_INT, 0, from_receiver_tag, MPI_COMM_WORLD);
-		MPI_Probe(0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-		MPI_Get_count(&status, MPI_INT, &domain_receive_size);
-	    }
-	    else{
-		MPI_Send(&my_rank, 1, MPI_INT, 0, from_receiver_tag, MPI_COMM_WORLD);
-	    }
+			//if didn't get any job, listen to dispatcher again
+			if(domain_recv[0]==-1){
+				//signal completion
+				std::vector<int> exhaust_msg(1,-1);
+				MPI_Send(&exhaust_msg[0], 1, MPI_INT, 0, from_receiver_tag, MPI_COMM_WORLD);
+				MPI_Probe(0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+				MPI_Get_count(&status, MPI_INT, &domain_receive_size);
+			}
+			else{
+				MPI_Send(&my_rank, 1, MPI_INT, 0, from_receiver_tag, MPI_COMM_WORLD);
+			}
 	    
-	}
+		}
 
     }
     else{
-	donor_process=0;
+		donor_process=0;
         domain_recv.resize(domain_receive_size);
         MPI_Recv(&domain_recv[0], domain_receive_size, MPI_INT, donor_process, tag, MPI_COMM_WORLD, &status);
     }
@@ -247,7 +260,7 @@ void backtracking(
         //add domains received
         int top_level= domain_recv[0];
         for(int i=0; i<(domain_recv.size()-1)/files.size(); ++i){
-	    std::vector<int> temp_domain;
+			std::vector<int> temp_domain;
             for(int j=0; j<files.size(); ++j){
                 temp_domain.push_back(domain_recv[1+i*files.size()+j]);
             }
@@ -255,77 +268,77 @@ void backtracking(
         }
         int currentDepth = top_level;
 
-	if(donor_process!=0){
-	    std::vector<int> lines_recv;
-	    std::vector<std::vector<int> > lines_in_files(files.size());
-	    for(int i=0; i<files.size(); ++i){
-		//listen to donor for colTree line numbers
-		MPI_Probe(donor_process, tag, MPI_COMM_WORLD, &status);
-		MPI_Get_count(&status, MPI_INT, &lines_receive_size);
-		//consume the message anyways
-		lines_recv.resize(lines_receive_size);
-		MPI_Recv(&lines_recv[0], lines_receive_size , MPI_INT, donor_process, tag, MPI_COMM_WORLD, &status);
-		lines_in_files[i]=lines_recv;
-	    }
+		if(donor_process!=0){
+			std::vector<int> lines_recv;
+			std::vector<std::vector<int> > lines_in_files(files.size());
+			for(int i=0; i<files.size(); ++i){
+				//listen to donor for colTree line numbers
+				MPI_Probe(donor_process, tag, MPI_COMM_WORLD, &status);
+				MPI_Get_count(&status, MPI_INT, &lines_receive_size);
+				//consume the message anyways
+				lines_recv.resize(lines_receive_size);
+				MPI_Recv(&lines_recv[0], lines_receive_size , MPI_INT, donor_process, tag, MPI_COMM_WORLD, &status);
+				lines_in_files[i]=lines_recv;
+			}
 	    
-	    //make colTress
-	    //initialize top_level column of colsTree
-	    int fileNum = 0;
-	    colsTree[top_level] = empty_rowMaps;
-	    for (auto& file : lines_in_files) {
-		colsTree[top_level].push_back(empty_rowMap);
+			//make colTress
+			//initialize top_level column of colsTree
+			int fileNum = 0;
+			colsTree[top_level] = empty_rowMaps;
+			for (auto& file : lines_in_files) {
+				colsTree[top_level].push_back(empty_rowMap);
 		
-		for (auto& row : file) {
-		    it = colsTree[top_level][fileNum].find(files[fileNum][row][top_level]);
-		    //if value is already mapped, append row number to the vector
-		    if (it != colsTree[top_level][fileNum].end()) {
-			it->second.push_back(row);
-		    }
-		    //if not found create a map
-		    else {
-			colsTree[top_level][fileNum].insert(
-							    std::pair<int, std::vector<int> >(files[fileNum][row][top_level],
-											      std::vector<int>(1, row)));
-		    }
+				for (auto& row : file) {
+					it = colsTree[top_level][fileNum].find(files[fileNum][row][top_level]);
+					//if value is already mapped, append row number to the vector
+					if (it != colsTree[top_level][fileNum].end()) {
+						it->second.push_back(row);
+					}
+					//if not found create a map
+					else {
+						colsTree[top_level][fileNum].insert(
+															std::pair<int, std::vector<int> >(files[fileNum][row][top_level],
+																							  std::vector<int>(1, row)));
+					}
+				}
+				//move to next file
+				++fileNum;
+			}
 		}
-		//move to next file
-		++fileNum;
-	    }
-	}
-	else{
-	    //initialize first column of colsTree
-	    int fileNum = 0;
-	    colsTree[0] = empty_rowMaps;
-	    for (auto& file : files) {
-		colsTree[0].push_back(empty_rowMap);
-		int rowNum = 0;
-		for (auto& row : file) {
-		    it = colsTree[0][fileNum].find(row[0]);
-		    //if value is already mapped, append row number to the vector
-		    if (it != colsTree[0][fileNum].end()) {
-			it->second.push_back(rowNum);
-		    }
-		    //if not found create a map
-		    else {
-			colsTree[0][fileNum].insert(
-						    std::pair<int, std::vector<int> >(row[0],
-										      std::vector<int>(1, rowNum)));
-		    }
-		    ++rowNum;
+		else{
+			//initialize first column of colsTree
+			int fileNum = 0;
+			colsTree[0] = empty_rowMaps;
+			for (auto& file : files) {
+				colsTree[0].push_back(empty_rowMap);
+				int rowNum = 0;
+				for (auto& row : file) {
+					it = colsTree[0][fileNum].find(row[0]);
+					//if value is already mapped, append row number to the vector
+					if (it != colsTree[0][fileNum].end()) {
+						it->second.push_back(rowNum);
+					}
+					//if not found create a map
+					else {
+						colsTree[0][fileNum].insert(
+													std::pair<int, std::vector<int> >(row[0],
+																					  std::vector<int>(1, rowNum)));
+					}
+					++rowNum;
+				}
+				//move to next file
+				++fileNum;
+			}
 		}
-		//move to next file
-		++fileNum;
-	    }
-	}
-	/*        done initializing        */
+		/*        done initializing        */
         
         while (!terminate) {
 	    
-	    MPI_Iprobe(0, donor_tag, MPI_COMM_WORLD, &flag, &status);
-	    //received split signal
-	    if(flag==1){
+			MPI_Iprobe(0, donor_tag, MPI_COMM_WORLD, &flag, &status);
+			//received split signal
+			if(flag==1){
 			
-		MPI_Recv(&receiver_process, 1, MPI_INT, 0, donor_tag, MPI_COMM_WORLD, &status);
+				MPI_Recv(&receiver_process, 1, MPI_INT, 0, donor_tag, MPI_COMM_WORLD, &status);
 				
                 //find top level
                 top_level=0;
@@ -333,47 +346,47 @@ void backtracking(
                     ++top_level;
                 }
 		
-		//tree is already exhausted
+				//tree is already exhausted
                 if(top_level>=depth-1 || (top_level==currentDepth && domain[top_level].size()==1)){
-		    std::vector<int> exhaust_msg(1,-1);
+					std::vector<int> exhaust_msg(1,-1);
                     MPI_Send(&exhaust_msg[0], 1, MPI_INT, receiver_process, tag, MPI_COMM_WORLD);
                 }
 
-		//if not then give half of the top level domain to receiver, with top_level at index 0
+				//if not then give half of the top level domain to receiver, with top_level at index 0
                 else{
-		    std::vector<int > domain_send;
+					std::vector<int > domain_send;
                     domain_send.push_back(top_level);
                     int domain_send_size;
                     domain_send_size=1+((domain[top_level].size()-1)/2);
 							
-		    for(int i=domain_send_size-1; i>=0; --i){
+					for(int i=domain_send_size-1; i>=0; --i){
                         for(auto j: domain[top_level][i]){
                             domain_send.push_back(j);
                         }
                     }
 					
                     for(int i=domain_send_size; i>0; --i){
-			domain[top_level].erase(domain[top_level].begin());
+						domain[top_level].erase(domain[top_level].begin());
                     }
 		    
-		    //send the domains
-		    MPI_Send(&domain_send[0], (domain_send_size*files.size()+1), MPI_INT, receiver_process, tag, MPI_COMM_WORLD);
+					//send the domains
+					MPI_Send(&domain_send[0], (domain_send_size*files.size()+1), MPI_INT, receiver_process, tag, MPI_COMM_WORLD);
 
-		    //prepare to send lines from each file
-		    for(int i=0; i<files.size(); ++i){
-			std::vector<int> lines_send;
-			for(auto& map: colsTree[top_level][i]){
-			    for(auto& row: map.second){
-				lines_send.push_back(row);
-			    }
-			}
-			MPI_Send(&lines_send[0], lines_send.size(), MPI_INT, receiver_process, tag, MPI_COMM_WORLD);
-		    }
-		}
+					//prepare to send lines from each file
+					for(int i=0; i<files.size(); ++i){
+						std::vector<int> lines_send;
+						for(auto& map: colsTree[top_level][i]){
+							for(auto& row: map.second){
+								lines_send.push_back(row);
+							}
+						}
+						MPI_Send(&lines_send[0], lines_send.size(), MPI_INT, receiver_process, tag, MPI_COMM_WORLD);
+					}
+				}
                 flag=0;
-	    }
+			}
 
-	    //current state is a leaf
+			//current state is a leaf
             if (currentDepth == depth - 1) {
                 //succeed, get the all the combinations of rows
                 if (domain[currentDepth].size() > 0) {
@@ -430,7 +443,7 @@ void backtracking(
                         int value = domain[currentDepth - 1][0][file];
                         for (auto& row : colsTree[currentDepth - 1][file][value]) {
                             it = colsTree[currentDepth][file].find(
-								   files[file][row][currentDepth]);
+																   files[file][row][currentDepth]);
                             //if value is already mapped, append row number to the vector
                             if (it != colsTree[currentDepth][file].end()) {
                                 it->second.push_back(row);
@@ -438,9 +451,9 @@ void backtracking(
                             //if not found create a map
                             else {
                                 colsTree[currentDepth][file].insert(
-								    std::pair<int, std::vector<int> >(
-												      files[file][row][currentDepth],
-												      std::vector<int>(1, row)));
+																	std::pair<int, std::vector<int> >(
+																									  files[file][row][currentDepth],
+																									  std::vector<int>(1, row)));
                             }
                         }
                         //move to next file
@@ -449,77 +462,81 @@ void backtracking(
                     
                     //pop the combination out of the parent's domain
                     domain[currentDepth - 1].erase(
-						   domain[currentDepth - 1].begin());
+												   domain[currentDepth - 1].begin());
                     
                     //update domain for current level
                     domain[currentDepth] = getMatching(colsTree[currentDepth],
-						       lambda);
+													   lambda);
                 }
             }
         }
 
-	//signal completion
-	MPI_Send(&my_rank, 1, MPI_INT, 0, tag, MPI_COMM_WORLD);
-	//listen for job to execute
-	//get message size and receive message
+		//signal completion
+		MPI_Send(&my_rank, 1, MPI_INT, 0, tag, MPI_COMM_WORLD);
+		//listen for job to execute
+		//get message size and receive message
 
-	MPI_Probe(0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-	MPI_Get_count(&status, MPI_INT, &domain_receive_size);
+		MPI_Probe(0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+		MPI_Get_count(&status, MPI_INT, &domain_receive_size);
 
-	if(domain_receive_size==1){			
-	    //receiving jobs from other process
-	    while(domain_receive_size==1){
-		if(status.MPI_TAG==donor_tag){
-		    //get receiver
-		    MPI_Recv(&receiver_process, domain_receive_size, MPI_INT, 0, donor_tag, MPI_COMM_WORLD, &status);
-		    //tree is already exhausted
-		    std::vector<int> exhaust_msg(1,-1);
-		    MPI_Send(&exhaust_msg[0], 1, MPI_INT, receiver_process, tag, MPI_COMM_WORLD);
-		    MPI_Probe(0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-		    MPI_Get_count(&status, MPI_INT, &domain_receive_size);
-		    if(domain_receive_size==4){
-			domain_recv.resize(domain_receive_size);
-			MPI_Recv(&domain_recv[0], domain_receive_size , MPI_INT, 0, tag, MPI_COMM_WORLD, &status);
-		    }
+		if(domain_receive_size==1){			
+			while(domain_receive_size==1){
+				//send exhaust msg to receiver
+				if(status.MPI_TAG==donor_tag){
+					//get receiver
+					MPI_Recv(&receiver_process, domain_receive_size, MPI_INT, 0, donor_tag, MPI_COMM_WORLD, &status);
+					//tree is already exhausted
+					std::vector<int> exhaust_msg(1,-1);
+					MPI_Send(&exhaust_msg[0], 1, MPI_INT, receiver_process, tag, MPI_COMM_WORLD);
+					MPI_Probe(0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+					MPI_Get_count(&status, MPI_INT, &domain_receive_size);
+					//receive termination msg					
+					if(domain_receive_size==4){
+						domain_recv.resize(domain_receive_size);
+						MPI_Recv(&domain_recv[0], domain_receive_size , MPI_INT, 0, tag, MPI_COMM_WORLD, &status);
+					}
+				}
+				//receiving jobs from other process
+				else{
+					//get donor
+					MPI_Recv(&donor_process, domain_receive_size, MPI_INT, 0, receiver_tag, MPI_COMM_WORLD, &status);
+					//listen to donor
+					MPI_Probe(donor_process, tag, MPI_COMM_WORLD, &status);
+					MPI_Get_count(&status, MPI_INT, &domain_receive_size);
+					//consume the message anyways
+					domain_recv.resize(domain_receive_size);
+					MPI_Recv(&domain_recv[0], domain_receive_size , MPI_INT, donor_process, tag, MPI_COMM_WORLD, &status);
+		    
+					//if didn't get any job, listen to dispatcher again
+					if(domain_recv[0]==-1){
+						//signal completion
+						std::vector<int> exhaust_msg(1,-1);
+						MPI_Send(&exhaust_msg[0], 1, MPI_INT, 0, from_receiver_tag, MPI_COMM_WORLD);
+						MPI_Probe(0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+						MPI_Get_count(&status, MPI_INT, &domain_receive_size);
+						//receive termination msg
+						if(domain_receive_size==4){
+							domain_recv.resize(domain_receive_size);
+							MPI_Recv(&domain_recv[0], domain_receive_size , MPI_INT, 0, tag, MPI_COMM_WORLD, &status);
+						}
+					}
+					else{
+						MPI_Send(&my_rank, 1, MPI_INT, 0, from_receiver_tag, MPI_COMM_WORLD);
+					}
+				}
+			}
 		}
 		else{
-		    //get donor
-		    MPI_Recv(&donor_process, domain_receive_size, MPI_INT, 0, receiver_tag, MPI_COMM_WORLD, &status);
-		    //listen to donor
-		    MPI_Probe(donor_process, tag, MPI_COMM_WORLD, &status);
-		    MPI_Get_count(&status, MPI_INT, &domain_receive_size);
-		    //consume the message anyways
-		    domain_recv.resize(domain_receive_size);
-		    MPI_Recv(&domain_recv[0], domain_receive_size , MPI_INT, donor_process, tag, MPI_COMM_WORLD, &status);
-		    
-		    //if didn't get any job, listen to dispatcher again
-		    if(domain_recv[0]==-1){
-			//signal completion
-			std::vector<int> exhaust_msg(1,-1);
-			MPI_Send(&exhaust_msg[0], 1, MPI_INT, 0, from_receiver_tag, MPI_COMM_WORLD);
-			MPI_Probe(0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-			MPI_Get_count(&status, MPI_INT, &domain_receive_size);
-			if(domain_receive_size==4){
-			    domain_recv.resize(domain_receive_size);
-			    MPI_Recv(&domain_recv[0], domain_receive_size , MPI_INT, 0, tag, MPI_COMM_WORLD, &status);
-			}
-		    }
-		    else{
-			MPI_Send(&my_rank, 1, MPI_INT, 0, from_receiver_tag, MPI_COMM_WORLD);
-		    }
+			//receive from rank0
+			domain_recv.resize(domain_receive_size);
+			MPI_Recv(&domain_recv[0], domain_receive_size, MPI_INT, 0, tag, MPI_COMM_WORLD, &status);
 		}
-	    }
-	}
-	else{
-	    domain_recv.resize(domain_receive_size);
-	    MPI_Recv(&domain_recv[0], domain_receive_size, MPI_INT, 0, tag, MPI_COMM_WORLD, &status);
-	}
     }
     return;
 }
 
 void dispatcher(std::vector<std::vector<std::vector<int> > >& files,
-		int lambda, int k){
+				int lambda, int k){
     int         rank;      /* current process' rank     */
     int         p;         /* The number of processes   */
     int         tag=0;
@@ -566,8 +583,8 @@ void dispatcher(std::vector<std::vector<std::vector<int> > >& files,
             //if not found create a map
             else {
                 colsTree[0][fileNum].insert(
-					    std::pair<int, std::vector<int> >(row[0],
-									      std::vector<int>(1, rowNum)));
+											std::pair<int, std::vector<int> >(row[0],
+																			  std::vector<int>(1, rowNum)));
             }
             ++rowNum;
         }
@@ -591,35 +608,35 @@ void dispatcher(std::vector<std::vector<std::vector<int> > >& files,
     while(!terminate){
         //if there is a process idling, assign a job to it
         while(idle.size()>0 and !terminate){
-	    std::cout<<domain[0].size()<<std::endl;
-	    std::cout<<"idle: "<<idle.size()<<std::endl;
-	    domain[0][0].insert(domain[0][0].begin(), 0);
-	    MPI_Send(&domain[0][0][0], domain[0][0].size(), MPI_INT, idle[0], tag, MPI_COMM_WORLD);
-            //pop match from domain and pop process from idle
-	    domain[0].erase(domain[0].begin());
-            if(domain[0].size()<=0){
-                terminate=true;
-            }
-            //listen for feedback, p_done is the process just finished job (non-blocking)
+			std::cout<<domain[0].size()<<std::endl;
+			std::cout<<"idle: "<<idle.size()<<std::endl;
+			domain[0][0].insert(domain[0][0].begin(), 0);
+			MPI_Send(&domain[0][0][0], domain[0][0].size(), MPI_INT, idle[0], tag, MPI_COMM_WORLD);
+			//pop match from domain and pop process from idle
+			domain[0].erase(domain[0].begin());
+			if(domain[0].size()<=0){
+				terminate=true;
+			}
+			//listen for feedback, p_done is the process just finished job (non-blocking)
             MPI_Irecv(&p_done, 1, MPI_INT, idle[0], tag,
-		      MPI_COMM_WORLD, &requests[idle[0]-1]);
-	    flags[idle[0]-1]=0;
-	    idle.erase(idle.begin());
-	}
-	
+					  MPI_COMM_WORLD, &requests[idle[0]-1]);
+			flags[idle[0]-1]=0;
+			idle.erase(idle.begin());
+		}
+		
         if(!terminate){
             //check if any process finished their jobs
             for(int process=1; process<p; ++process){
-		if(flags[process-1]==0){
-		    MPI_Test(&requests[process-1], &flags[process-1], &status[process-1]);
-		    //received from process
-		    if(flags[process-1]==1){
-		      //add available to idle
-			idle.push_back(process);
-		    }
+				if(flags[process-1]==0){
+					MPI_Test(&requests[process-1], &flags[process-1], &status[process-1]);
+					//received from process
+					if(flags[process-1]==1){
+						//add available to idle
+						idle.push_back(process);
+					}
+				}
+			}
 		}
-	    }
-	}
     }
     
     /* start randomized scheduling */
@@ -627,38 +644,38 @@ void dispatcher(std::vector<std::vector<std::vector<int> > >& files,
     //construct the complement of idle processors, busy
     std::vector<int> busy;
     for(int i=1; i<p; ++i){
-	if(flags[i-1]==0){
-	    busy.push_back(i);
-	}
+		if(flags[i-1]==0){
+			busy.push_back(i);
+		}
     }
     //loop for using randomized parallelism
     while(busy.size()>0){
-	//continue only if busy.size()>0 and idle.size()>0
-	if(busy.size()>0 && idle.size()>0){
+		//continue only if busy.size()>0 and idle.size()>0
+		if(busy.size()>0 && idle.size()>0){
 	  
-	    /* start assigning an idle process to a the first busy process */			
-	    //get first idle process and remove it from idle
-	    int receiver_process=idle[0];
-	    int donor_process=busy[0];
-	    //rotate busy so that the first process becomes the last in the vector
-	    std::rotate(busy.begin(), busy.begin()+1, busy.end());
-	    //send signal to both receiver and donor
-	    MPI_Send(&donor_process, 1, MPI_INT, receiver_process, receiver_tag, MPI_COMM_WORLD);
-	    MPI_Send(&receiver_process, 1, MPI_INT, donor_process, donor_tag, MPI_COMM_WORLD);
+			/* start assigning an idle process to a the first busy process */			
+			//get first idle process and remove it from idle
+			int receiver_process=idle[0];
+			int donor_process=busy[0];
+			//rotate busy so that the first process becomes the last in the vector
+			std::rotate(busy.begin(), busy.begin()+1, busy.end());
+			//send signal to both receiver and donor
+			MPI_Send(&donor_process, 1, MPI_INT, receiver_process, receiver_tag, MPI_COMM_WORLD);
+			MPI_Send(&receiver_process, 1, MPI_INT, donor_process, donor_tag, MPI_COMM_WORLD);
 	    
-	    MPI_Recv(&p_done, 1, MPI_INT, MPI_ANY_SOURCE, from_receiver_tag, MPI_COMM_WORLD, &status[receiver_process-1]);
+			MPI_Recv(&p_done, 1, MPI_INT, MPI_ANY_SOURCE, from_receiver_tag, MPI_COMM_WORLD, &status[receiver_process-1]);
 			
-	    //modify busy and idle if p_done is not -1
-	    if(p_done!=-1){
-		flags[receiver_process-1]=0;
-		idle.erase(idle.begin());
-		busy.push_back(receiver_process);
-		MPI_Irecv(&p_done, 1, MPI_INT, receiver_process, tag,
-			  MPI_COMM_WORLD, &requests[receiver_process-1]);
-	    }
-		std::cout<<"idle: "<<idle.size()<<std::endl;
-	}
-	//check if any process finished their jobs
+			//modify busy and idle if p_done is not -1
+			if(p_done!=-1){
+				flags[receiver_process-1]=0;
+				idle.erase(idle.begin());
+				busy.push_back(receiver_process);
+				MPI_Irecv(&p_done, 1, MPI_INT, receiver_process, tag,
+						  MPI_COMM_WORLD, &requests[receiver_process-1]);
+			}
+			std::cout<<"idle1: "<<idle.size()<<std::endl;
+		}
+		//check if any process finished their jobs
         for(int process=1; process<p; ++process){
             if(flags[process-1]==0){
                 MPI_Test(&requests[process-1], &flags[process-1], &status[process-1]);
@@ -668,7 +685,7 @@ void dispatcher(std::vector<std::vector<std::vector<int> > >& files,
                     idle.push_back(process);
                     //remove process from busy
                     busy.erase(std::remove(busy.begin(),busy.end(), process), busy.end());
-					std::cout<<"idle: "<<idle.size()<<std::endl;
+					std::cout<<"idle2: "<<idle.size()<<std::endl;
 				}
             }
         }
@@ -693,7 +710,7 @@ int main(int argc, char *argv[]) {
     int         k;           /* number of columns in the files   */
     MPI_Status  status;
     clock_t t;
-    t = clock();
+	t = clock();
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
@@ -706,51 +723,55 @@ int main(int argc, char *argv[]) {
 	std::string outfilep ="";
 	std::string outfolder;
 	std::string file;
+	std::string outmode;
 
-    //for primary file path
-    ss.str(argv[2]);
-    while(std::getline(ss, item, '/')){
-        items.push_back(item);
-    }
-    for(int i=1; i<items.size()-1; ++i){
-        outfilep+="/";
-        outfilep+=items[i];
-    }
-    outfilep+="/output/";
-
-    //for exact file name n.case
-    file=items[items.size()-1];
-    ss.clear();
-    ss.str(file);
-    items.clear();
-    while(std::getline(ss, item, '.')){
-        items.push_back(item);
-    }
-	outfilep+=items[0];
-	outfilep+='.';
-	outfilep+=items[1];
-
-
-    lambda = atoi(argv[1]);
+	//get output mode echo/tofile to different files
+	outmode=argv[argc-1];
+   
+	if(outmode=="tofile"){
+		//for primary file path
+		ss.str(argv[2]);
+		while(std::getline(ss, item, '/')){
+			items.push_back(item);
+		}
+		for(int i=1; i<items.size()-1; ++i){
+			outfilep+="/";
+			outfilep+=items[i];
+		}
+		outfilep+="/output/";
+		
+		//for exact file name n.case
+		file=items[items.size()-1];
+		ss.clear();
+		ss.str(file);
+		items.clear();
+		while(std::getline(ss, item, '.')){
+			items.push_back(item);
+		}
+		outfilep+=items[0];
+		outfilep+='.';
+		outfilep+=items[1];
+	}
+	lambda = atoi(argv[1]);
    	
     //initialize the file struct that's going to hold all the files
     std::vector<std::vector<std::vector<int> > > files;
-    for (int i = 2; i < argc; i++) {
+    for (int i = 2; i < argc-1; i++) {
         readFile(files, argv[i]);
     }
     t=clock()-t;
     
     float fileReadingT=((float) t) / CLOCKS_PER_SEC;
     if(my_rank==0){
-	float temp;
-	for(int i=1; i<p; ++i){
-	    MPI_Recv(&temp, 1, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
-	    fileReadingT+=temp;
-	}
-	fileReadingT=fileReadingT/p;
+		float temp;
+		for(int i=1; i<p; ++i){
+			MPI_Recv(&temp, 1, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
+			fileReadingT+=temp;
+		}
+		fileReadingT=fileReadingT/p;
     }
     else{
-	MPI_Send(&fileReadingT, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
+		MPI_Send(&fileReadingT, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
     }
     
     if(my_rank==0){
@@ -762,31 +783,35 @@ int main(int argc, char *argv[]) {
 
     //process 0 deals with first column and dispatches jobs
     if (my_rank==0){
-		std::cout<<"mkdir: "<<outfilep.c_str()<<std::endl;
-		mkdir(outfilep.c_str(), 0770);
+		if(outmode=="tofile"){
+			mkdir(outfilep.c_str(), 0770);
+		}
         dispatcher(files, lambda, k);
     }
     //other processes do backtracking
     else{
+		if(outmode!="tofile"){
+			outfilep=outmode;
+		}
 		backtracking(files, lambda, k, outfilep);
     }
 
     t = clock() - t;
     float executionT=((float) t) / CLOCKS_PER_SEC;
     if(my_rank==0){
-      float temp;
-      for(int i=1; i<p; ++i){
-	MPI_Recv(&temp, 1, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
-	executionT+=temp;
-      }
-      executionT=executionT/p;
+		float temp;
+		for(int i=1; i<p; ++i){
+			MPI_Recv(&temp, 1, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
+			executionT+=temp;
+		}
+		executionT=executionT/p;
     }
     else{
-      MPI_Send(&executionT, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
+		MPI_Send(&executionT, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
     }
     if(my_rank==0){
-      std::cout << "It took "<< fileReadingT << " seconds to read files"<<std::endl;   
-      std::cout << "It took " << executionT << " seconds to finish the search"<<std::endl;
+		std::cout << "It took "<< fileReadingT << " seconds to read files"<<std::endl;   
+		std::cout << "It took " << executionT << " seconds to finish the search"<<std::endl;
     }
 
     MPI_Finalize();
