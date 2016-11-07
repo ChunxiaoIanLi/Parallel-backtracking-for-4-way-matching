@@ -752,6 +752,7 @@ int main(int argc, char *argv[]) {
 		outfilep+='.';
 		outfilep+=items[1];
 	}
+
 	lambda = atoi(argv[1]);
    	
     //initialize the file struct that's going to hold all the files

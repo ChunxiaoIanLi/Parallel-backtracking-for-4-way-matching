@@ -138,12 +138,14 @@ void _generateComb_aux(std::vector<std::vector<int> >& sets,
     } else {
         solutionSet.push_back(temp);
         //print out the current solution, for debugging purposes
+		/*
 		std::cout << "SOLUTION ";
 		for (auto& rowNum : temp) {
 			std::cout << rowNum+1 << " ";
 		}
 		std::cout << std::endl;
-    }
+		*/
+	}
 }
 
 //generate all the combinations for a set of rows
