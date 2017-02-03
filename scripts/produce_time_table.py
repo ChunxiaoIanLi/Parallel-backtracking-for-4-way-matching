@@ -2,7 +2,6 @@ import os
 import sys
 sys.path.append("/home/ianli/matching/scripts/tabulate-0.7.7")
 import string
-from tabulate import tabulate
 
 #usage: python (analyze.py) (root folder for output files)
 
