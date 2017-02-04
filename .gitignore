@@ -1,5 +1,6 @@
 *.log
-
+*.seqn
+*.pafs
 # Executables
 *.exe
 *.out
