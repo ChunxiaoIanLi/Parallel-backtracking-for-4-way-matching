@@ -21,7 +21,7 @@ do
 	case=0
 		while [ -e $path$order.$case.A.pafs.txt ];
 		do
-			sqsub -r $r -q mpi -n 50 -o $path../output/$order.$case /home/ianli/matching/mpi/a.out 0 $path$order.$case.A.pafs.txt $path$order.$case.B.pafs.txt $path$order.$case.C.pafs.txt $path$order.$case.D.pafs.txt tofile
+            sqsub -r $r -q mpi -n 50 -o $path../output/$order.$case /home/ianli/matching/mpi/a.out 0 $path$order.$case.A.pafs.txt $path$order.$case.B.pafs.txt $path$order.$case.C.pafs.txt $path$order.$case.D.pafs.txt tofile
 			((case++))
 			done
 done

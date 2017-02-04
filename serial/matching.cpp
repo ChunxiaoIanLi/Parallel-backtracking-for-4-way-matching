@@ -111,9 +111,10 @@ void printFiles(std::vector<std::vector<std::vector<int> > >& files) {
 
 bool toValid(std::vector<ColStruct::rowMaps>& colsTree,
         std::vector<std::vector<std::vector<int> > >& domain,
-        int& currentDepth) {
+			 int& currentDepth, std::vector<int>& visited_columns, std::vector<int>& visited_columns_history) {
     //backtrack to a valid parent
     while (domain[currentDepth].size() == 0) {
+		visited_columns[visited_columns_history[currentDepth]]=0;
         --currentDepth;
     }
     //tree is exhausted
@@ -157,9 +158,146 @@ void generateComb(std::vector<std::vector<int> >& sets,
 
 }
 
+void pickColumn(std::vector<int> &visited_columns, std::vector<int> &visited_columns_history, std::vector<std::vector<std::vector<int> > >& files, std::vector<ColStruct::rowMaps> &colsTree, std::vector<std::vector<std::vector<int> > >& domain, int &currentDepth, int &lambda, int &asdf){
+	ColStruct::rowMap empty_rowMap;
+	ColStruct::rowMaps best_rowMaps;
+	ColStruct::it it;
+
+	double aveLineCount=std::numeric_limits<double>::infinity();
+	int bestDomainSize=std::numeric_limits<int>::max();
+
+	int bestColumn;
+	std::vector<std::vector<int> > bestDomain;
+	
+	//initialization
+	if(currentDepth==0){
+		for(int k=0; k<files[0][0].size(); k++){
+			ColStruct::rowMaps temp_rowMaps;
+			std::vector<std::vector<int> > temp_domain;
+			int totalBinCount=0;
+			int totalLineCount=0;
+			int fileNum=0;
+			for(auto& file : files){
+				temp_rowMaps.push_back(empty_rowMap);
+				int rowNum=0;
+				totalLineCount+=file.size();
+				for(auto& row : file){
+					it = temp_rowMaps[fileNum].find(row[k]);
+					//if value is already mapped, append row number to the vector
+					if (it != temp_rowMaps[fileNum].end()) {
+						it->second.push_back(rowNum);
+					}
+					//if not found create a map
+					else {
+						temp_rowMaps[fileNum].insert(
+													 std::pair<int, std::vector<int> >(row[k],
+																					   std::vector<int>(1, rowNum)));
+						++totalBinCount;
+					}
+					++rowNum;
+				}
+				fileNum++;
+			}
+			temp_domain=getMatching(temp_rowMaps, lambda);
+			//if a better column is found
+			//std::cout<<totalLineCount/(double)totalBinCount<<" "<<aveLineCount<<std::endl; 
+			if(temp_domain.size() < bestDomainSize){
+				bestDomainSize=temp_domain.size();
+				bestDomain=temp_domain;
+				aveLineCount=totalLineCount/(double)totalBinCount;
+				best_rowMaps=temp_rowMaps;
+				bestColumn=k;
+				//std::cout<<bestColumn<<std::endl;
+				//std::cout<<"here"<<std::endl;
+			}
+			else if(temp_domain.size() == bestDomainSize){
+				if(totalLineCount/(double)totalBinCount < aveLineCount){
+					bestDomainSize=temp_domain.size();
+					bestDomain=temp_domain;
+					aveLineCount=totalLineCount/(double)totalBinCount;
+					best_rowMaps=temp_rowMaps;
+					bestColumn=k;
+					//std::cout<<bestColumn<<std::endl;
+					//std::cout<<"here1"<<std::endl;
+				}
+			}
+		}
+		colsTree[0]=best_rowMaps;
+		visited_columns[bestColumn]=1;
+		visited_columns_history[0]=bestColumn;
+		domain[0]=bestDomain;
+	}
+	//body of the tree
+	else if(currentDepth<visited_columns.size()){	
+		for(int k=0; k<visited_columns.size(); k++){
+			//for unvisited columns
+			if(visited_columns[k]==0){
+				//get first combination from parent domain, and update rowMaps for k
+				//one file at a time
+				//leave all the rows that has the value, update notRemove
+				ColStruct::rowMaps temp_rowMaps;
+				std::vector<std::vector<int> > temp_domain;
+				int totalBinCount=0;
+				int totalLineCount=0;
+				int fileNum=0;
+				for(auto& file : files){
+					temp_rowMaps.push_back(empty_rowMap);
+					int value = domain[currentDepth - 1][0][fileNum];
+					totalLineCount+=colsTree[currentDepth - 1][fileNum][value].size();
+					for (auto& row : colsTree[currentDepth - 1][fileNum][value]) {
+						it = temp_rowMaps[fileNum].find(file[row][k]);
+						//if value is already mapped, append row number to the vector
+						if (it != temp_rowMaps[fileNum].end()) {
+							it->second.push_back(row);
+						}
+						//if not found create a map
+						else {
+							temp_rowMaps[fileNum].insert(std::pair<int, std::vector<int> >(file[row][k], std::vector<int>(1, row)));
+							++totalBinCount;
+						}
+					}
+					fileNum++;
+				}
+				temp_domain=getMatching(temp_rowMaps, lambda);
+				//if a better column is found
+				if(temp_domain.size() < bestDomainSize){
+					bestDomainSize=temp_domain.size();
+					bestDomain=temp_domain;
+					aveLineCount=totalLineCount/(double)totalBinCount;
+					best_rowMaps=temp_rowMaps;
+					bestColumn=k;
+				}
+				
+				else if(temp_domain.size() == bestDomainSize){
+					if(totalLineCount/(double)totalBinCount < aveLineCount){
+						bestDomainSize=temp_domain.size();
+						bestDomain=temp_domain;
+						aveLineCount=totalLineCount/(double)totalBinCount;
+						best_rowMaps=temp_rowMaps;
+						bestColumn=k;
+					}
+				}
+				if(currentDepth>=asdf){
+					break;
+				}
+			}
+		}
+		colsTree[currentDepth]=best_rowMaps;
+        visited_columns[bestColumn]=1;
+        visited_columns_history[currentDepth]=bestColumn;
+		domain[currentDepth]=bestDomain;
+		//pop the combination out of the parent's domain
+		domain[currentDepth - 1].erase(domain[currentDepth - 1].begin());
+	}
+}
+
 std::vector<std::vector<int> > backtracking(
         std::vector<std::vector<std::vector<int> > >& files, int lambda,
-        int k) {
+        int k, int asdf) {
+
+	/* debugging */
+	int maxDepth=0;
+	int totalbranches=0;
 
     bool terminate = false;
     int depth = k;
@@ -171,6 +309,9 @@ std::vector<std::vector<int> > backtracking(
     //construct a domain list
     //domain=[[[10,20,30],[20,10,30]], [[15,15,30],[30,20,10]].....] domain for each column
     std::vector<std::vector<std::vector<int> > > domain(k);
+	//construct a list currently processed columns
+	std::vector<int>visited_columns(k, 0);
+	std::vector<int>visited_columns_history(k, -1);
 
     ColStruct::rowMap empty_rowMap;
     ColStruct::rowMaps empty_rowMaps;
@@ -178,6 +319,7 @@ std::vector<std::vector<int> > backtracking(
 
     int domainsize_temp=0;
 
+	/*
     //initialize first column of colsTree
     int fileNum = 0;
     colsTree[0] = empty_rowMaps;
@@ -201,10 +343,14 @@ std::vector<std::vector<int> > backtracking(
         //move to next file
         ++fileNum;
     }
+	*/
 
-    domain[0] = getMatching(colsTree[0], lambda);
+	int currentDepth = 0;
+	pickColumn(visited_columns, visited_columns_history, files, colsTree, domain, currentDepth, lambda, asdf);
+
+	//    domain[0] = getMatching(colsTree[0], lambda);
     std::cout<<"initial domain size: "<<domain[0].size()<<std::endl; 
-
+	totalbranches+=domain[0].size();
     //eliminate domain before checkpoint.
     // while (domain[0].size()>checkpoint){
     //   domain[0].erase(domain[0].begin());
@@ -213,19 +359,18 @@ std::vector<std::vector<int> > backtracking(
 
     int domain_temp=0;
     //done initializing
-    int currentDepth = 0;
     while (!terminate) {
-
         //current state is a leaf
         if (currentDepth == depth - 1) {  
+			maxDepth=depth-1;
 			//succeed, get the all the combinations of rows
             if (domain[currentDepth].size() > 0) {
 
                 std::vector<std::vector<int> > matches = domain[currentDepth];
-
+				//int x=solutionSet.size();
                 //matches=[[20,80],[40,60]...]
                 //match=[20, 80]
-                for (auto& match : matches) {
+				for (auto& match : matches) {
                     //sets for generating all the possibilities
                     //            File A      File B
                     //sets=[[rowN, rowM],[rowL, rowQ]....]
@@ -235,15 +380,17 @@ std::vector<std::vector<int> > backtracking(
                         sets.push_back(colsTree[currentDepth][i][match[i]]);
                     }
                     //generate all the possible combinations
-                    generateComb(sets, solutionSet);
+					generateComb(sets, solutionSet);
                 }
+				//std::cout<<solutionSet.size()-x<<" solutions found here"<<std::endl;
+				visited_columns[visited_columns_history[currentDepth]]=0;
                 --currentDepth;
             }
             //backtrack
             //check if the tree is exhausted, terminate if it is
             //or update the tree
-            bool result = toValid(colsTree, domain, currentDepth);
-            if (result == false) {
+			bool result = toValid(colsTree, domain, currentDepth, visited_columns, visited_columns_history);
+			if (result == false) {
                 terminate = true;
             }
 
@@ -253,16 +400,34 @@ std::vector<std::vector<int> > backtracking(
             //if domain is empty, backtrack
             if (domain[currentDepth].size() == 0) {
                 //check if the tree is exhausted, terminate if it is
-                bool result = toValid(colsTree, domain, currentDepth);
-                if (result == false) {
+				bool result = toValid(colsTree, domain, currentDepth, visited_columns, visited_columns_history);
+				if (result == false) {
                     terminate = true;
                 }
             }
             //if current domain is not empty
             else {
+				++currentDepth;
+				if(currentDepth>maxDepth){
+                    maxDepth=currentDepth;
+                }
+				pickColumn(visited_columns, visited_columns_history, files, colsTree, domain, currentDepth, lambda, asdf);
+				/*
+				std::cout<<currentDepth<<std::endl;
+				for(auto& a: visited_columns){
+					std::cout<<a<<" ";
+				}
+				std::cout<<std::endl;
+				for(auto& a: visited_columns_history){
+					std::cout<<a<<" ";
+                }
+				std::cout<<std::endl;
+				*/				
+
+				/*
                 //move one level down the tree
                 ++currentDepth;
-                //get first combination from parent domain, and update rowMaps for currentDepth
+				//get first combination from parent domain, and update rowMaps for currentDepth
                 //one file at a time
                 //leave all the rows that has the value, update notRemove
                 int file = 0;
@@ -290,21 +455,27 @@ std::vector<std::vector<int> > backtracking(
                     //move to next file
                     ++file;
                 }
-
-                //pop the combination out of the parent's domain
-                domain[currentDepth - 1].erase(
-                        domain[currentDepth - 1].begin());
+				*/
 
                 //update domain for current level
-                domain[currentDepth] = getMatching(colsTree[currentDepth],
-                        lambda);
+				//                domain[currentDepth] = getMatching(colsTree[currentDepth], lambda);
+				/*				
+				for(auto& a: domain){
+					std::cout<<a.size()<<" ";
+                }
+				std::cout<<std::endl;
+				*/
+				totalbranches+=domain[currentDepth].size();
             }
         }
 		if (domain[0].size()!=domainsize_temp){
 		  domainsize_temp=domain[0].size();
+		  //std::cout<<domainsize_temp<<" "<<domain[1].size()<<" "<<maxDepth+1<<std::endl;
 		  std::cout<<domainsize_temp<<" "<<domain[1].size()<<std::endl;
+		  maxDepth=0;
 		}
     }
+	std::cout<<"total branches created "<<totalbranches<<std::endl;
     return solutionSet;
 }
 
@@ -315,16 +486,17 @@ int main(int argc, char *argv[]) {
     t = clock();
 
     int lambda = atoi(argv[1]);    
+	int asdf=atoi(argv[2]);
 
     //initialize the file struct that's going to hold all the files
     std::vector<std::vector<std::vector<int> > > files;
-    for (int i = 2; i < argc; i++) {
+    for (int i = 3; i < argc; i++) {
       readFile(files, argv[i]);
     }
 	int k=files[0][0].size();
 
     std::vector<std::vector<int> > solutionSet;
-    solutionSet = backtracking(files, lambda, k);
+    solutionSet = backtracking(files, lambda, k, asdf);
 
     if (solutionSet.size() == 0) {
       std::cout << "no solution" << std::endl;

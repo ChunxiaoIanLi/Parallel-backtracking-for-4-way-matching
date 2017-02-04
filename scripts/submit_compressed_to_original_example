@@ -1,0 +1,1 @@
+python submit_compressed_to_original.py /home/ianli/matching/serial/old.out 10m /scratch/ianli/45_mapping/sequences/45.0 /scratch/ianli/45_mapping/matching_sequences/45.0 /scratch/ianli/45_mapping/

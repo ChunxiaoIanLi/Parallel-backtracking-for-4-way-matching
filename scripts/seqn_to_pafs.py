@@ -1,10 +1,12 @@
+#python seqn_to_pafs.py (input file) (output file)
+
 import os
 import sys
 import math
 
 seqnfile=sys.argv[1]
 temp=seqnfile.split(".")
-paffile=temp[0]+".pafs"
+paffile=sys.argv[2]
 
 seqnfp=open(seqnfile,"r")
 paffp=open(paffile,"w")
