@@ -12,6 +12,7 @@
 #include <vector>
 #include <algorithm>
 #include <time.h>
+#include <limits>
 #include "Struct.h"
 
 void readFile(std::vector<std::vector<std::vector<int> > >& files,
@@ -509,3 +510,4 @@ int main(int argc, char *argv[]) {
     std::cout << "It took me " << t << " clicks (" << ((float) t) / CLOCKS_PER_SEC << " seconds)."<<std::endl;
     return 0;
 }
+
