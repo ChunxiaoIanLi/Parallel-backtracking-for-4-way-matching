@@ -15,6 +15,15 @@
 #include <limits>
 #include "Struct.h"
 
+bool isInt(const char* s) {
+    if (*s == '\0') return false;
+    if (*s == '+' || *s == '-') ++s;
+    if (*s == '\0') return false;
+    for (; *s; ++s) {
+        if (!std::isdigit(static_cast<unsigned char>(*s))) return false;
+    }
+    return true;
+}
 void readFile(std::vector<std::vector<std::vector<int> > >& files,
 			  std::string fileName) {
 	
@@ -485,19 +494,49 @@ int main(int argc, char *argv[]) {
     clock_t t;
     clock_t readfile_t;
     t = clock();
+	int lambda = std::atoi(argv[1]);
+    int asdf = -1;          // 先设个标记值
+    int firstFileArg = 2;   // 默认认为 argv[2] 是文件
 
-    int lambda = atoi(argv[1]);    
-	int asdf=atoi(argv[2]);
-
-    //initialize the file struct that's going to hold all the files
-    std::vector<std::vector<std::vector<int> > > files;
-    for (int i = 3; i < argc; i++) {
-      readFile(files, argv[i]);
+    // 如果第二个参数是整数 → 当作 asdf，用老的模式
+    if (argc >= 4 && isInt(argv[2])) {
+        asdf = std::atoi(argv[2]);
+        firstFileArg = 3;   // 文件从 argv[3] 开始
     }
-	int k=files[0][0].size();
 
-    std::vector<std::vector<int> > solutionSet;
+    // 先把文件都读进来
+    std::vector<std::vector<std::vector<int>>> files;
+    for (int i = firstFileArg; i < argc; ++i) {
+        readFile(files, argv[i]);
+    }
+
+    if (files.empty() || files[0].empty()) {
+        std::cerr << "No data loaded from input files!" << std::endl;
+        return 1;
+    }
+
+    int k = files[0][0].size();   // 第一份文件的列数（你原来就是这么用的）
+
+    // 没给 asdf 的情况：默认设成 “第一文件的最大 column 数”
+    if (asdf < 0) {
+        asdf = k;   // 关键点：=k 时，下面解释为什么等价于“没有 asdf”
+    }
+
+    std::vector<std::vector<int>> solutionSet;
     solutionSet = backtracking(files, lambda, k, asdf);
+	
+ //    int lambda = atoi(argv[1]);    
+	// int asdf=atoi(argv[2]);
+
+ //    //initialize the file struct that's going to hold all the files
+ //    std::vector<std::vector<std::vector<int> > > files;
+ //    for (int i = 3; i < argc; i++) {
+ //      readFile(files, argv[i]);
+ //    }
+	// int k=files[0][0].size();
+
+ //    std::vector<std::vector<int> > solutionSet;
+ //    solutionSet = backtracking(files, lambda, k, asdf);
 
     if (solutionSet.size() == 0) {
       std::cout << "no solution" << std::endl;
@@ -510,4 +549,5 @@ int main(int argc, char *argv[]) {
     std::cout << "It took me " << t << " clicks (" << ((float) t) / CLOCKS_PER_SEC << " seconds)."<<std::endl;
     return 0;
 }
+
 
