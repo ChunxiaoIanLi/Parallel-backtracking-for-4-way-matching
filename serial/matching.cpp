@@ -543,11 +543,24 @@ int main(int argc, char *argv[]) {
     }
     else{
       std::cout<<"there are "<<solutionSet.size()<<" solutions"<<std::endl;
+	  // 打印每个 solution 的行号
+	  for (size_t s = 0; s < solutionSet.size(); ++s) {
+		  std::cout << "Solution " << s + 1 << ": ";
+
+		  for (size_t f = 0; f < solutionSet[s].size(); ++f) {
+			  int rowIdx = solutionSet[s][f];          // 0-based 行号
+			  char fileName = 'A' + static_cast<char>(f); // 文件名 A, B, C, ...
+
+			  std::cout << fileName << " row " << (rowIdx + 1) << "  ";
+		  }
+
+		  std::cout << std::endl;
     }
 
     t = clock() - t;
     std::cout << "It took me " << t << " clicks (" << ((float) t) / CLOCKS_PER_SEC << " seconds)."<<std::endl;
     return 0;
 }
+
 
 
