@@ -494,7 +494,7 @@ int main(int argc, char *argv[]) {
     clock_t t;
     clock_t readfile_t;
     t = clock();
-	int lambda = std::atoi(argv[1]);
+    int lambda = std::atoi(argv[1]);
     int asdf = -1;          // 先设个标记值
     int firstFileArg = 2;   // 默认认为 argv[2] 是文件
 
@@ -515,52 +515,41 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int k = files[0][0].size();   // 第一份文件的列数（你原来就是这么用的）
+    int k = files[0][0].size();   // 第一份文件的列数
 
     // 没给 asdf 的情况：默认设成 “第一文件的最大 column 数”
     if (asdf < 0) {
-        asdf = k;   // 关键点：=k 时，下面解释为什么等价于“没有 asdf”
+        asdf = k;
     }
 
     std::vector<std::vector<int>> solutionSet;
     solutionSet = backtracking(files, lambda, k, asdf);
-	
- //    int lambda = atoi(argv[1]);    
-	// int asdf=atoi(argv[2]);
-
- //    //initialize the file struct that's going to hold all the files
- //    std::vector<std::vector<std::vector<int> > > files;
- //    for (int i = 3; i < argc; i++) {
- //      readFile(files, argv[i]);
- //    }
-	// int k=files[0][0].size();
-
- //    std::vector<std::vector<int> > solutionSet;
- //    solutionSet = backtracking(files, lambda, k, asdf);
 
     if (solutionSet.size() == 0) {
-      std::cout << "no solution" << std::endl;
+        std::cout << "no solution" << std::endl;
     }
-    else{
-      std::cout<<"there are "<<solutionSet.size()<<" solutions"<<std::endl;
-	  // 打印每个 solution 的行号
-	  for (size_t s = 0; s < solutionSet.size(); ++s) {
-		  std::cout << "Solution " << s + 1 << ": ";
+    else {
+        std::cout << "there are " << solutionSet.size() << " solutions" << std::endl;
+        // 打印每个 solution 的行号
+        for (size_t s = 0; s < solutionSet.size(); ++s) {
+            std::cout << "Solution " << s + 1 << ": ";
 
-		  for (size_t f = 0; f < solutionSet[s].size(); ++f) {
-			  int rowIdx = solutionSet[s][f];          // 0-based 行号
-			  char fileName = 'A' + static_cast<char>(f); // 文件名 A, B, C, ...
+            for (size_t f = 0; f < solutionSet[s].size(); ++f) {
+                int rowIdx = solutionSet[s][f];              // 0-based 行号
+                char fileName = 'A' + static_cast<char>(f);  // 文件名 A, B, C, ...
 
-			  std::cout << fileName << " row " << (rowIdx + 1) << "  ";
-		  }
+                std::cout << fileName << " row " << (rowIdx + 1) << "  ";
+            }
 
-		  std::cout << std::endl;
-    }
+            std::cout << std::endl;
+        }
+    }   // ✅ 补上这个，结束 else
 
     t = clock() - t;
-    std::cout << "It took me " << t << " clicks (" << ((float) t) / CLOCKS_PER_SEC << " seconds)."<<std::endl;
+    std::cout << "It took me " << t << " clicks (" 
+              << ((float) t) / CLOCKS_PER_SEC << " seconds)." << std::endl;
     return 0;
-}
+}   // 结束 main
 
 
 
